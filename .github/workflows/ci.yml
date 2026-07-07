@@ -1,18 +1,14 @@
-on: [push, pull_request, workflow_dispatch]
-name: Continuous Integration
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+on: [push, workflow_dispatch]
+name: Build iOS IPA
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
-  build-only-ios:
-    name: Build only (iOS)
+  build-ios:
+    name: Build iOS IPA
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -29,11 +25,10 @@ jobs:
         run: sudo xcode-select -switch /Applications/Xcode_16.4.app
 
       - name: Publish IPA
-        run: dotnet publish osu.iOS.slnf -c Release -p:ArchiveOnBuild=true -p:BuildIpa=true -p:CodesignKey=-
+        run: dotnet publish osu.iOS/osu.iOS.csproj -c Release -p:ArchiveOnBuild=true -p:BuildIpa=true -p:CodesignKey=-
 
       - name: Upload IPA
         uses: actions/upload-artifact@v7
         with:
           name: osu-ios-unsigned
-          path: |
-            osu.iOS/bin/Release/net8.0-ios/**/*.ipa
+          path: "osu.iOS/bin/Release/net8.0-ios/**/*.ipa"
