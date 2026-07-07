@@ -28,5 +28,12 @@ jobs:
       - name: Use Xcode 16.4
         run: sudo xcode-select -switch /Applications/Xcode_16.4.app
 
-      - name: Build
-        run: dotnet build -c Debug osu.iOS.slnf
+      - name: Publish IPA
+        run: dotnet publish osu.iOS.slnf -c Release -p:ArchiveOnBuild=true -p:BuildIpa=true -p:CodesignKey=-
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v7
+        with:
+          name: osu-ios-unsigned
+          path: |
+            osu.iOS/bin/Release/net8.0-ios/**/*.ipa
